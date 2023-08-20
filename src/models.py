@@ -3,6 +3,7 @@ from peewee import *
 db = SqliteDatabase('games.db')
 
 class Game(Model):
+    id = AutoField()
     name = CharField()
     author = CharField()
     year = IntegerField()

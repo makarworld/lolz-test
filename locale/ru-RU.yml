@@ -18,7 +18,7 @@ banner: |
         Y88b  d88P Y88b. Y88..88P 888    888  888 Y88b 888 Y8b.     
          "Y8888P"   "Y888 "Y88P"  888    "Y888888  "Y88888  "Y8888  
                                                        888          
-               [{language}]  by author: @abuztrade        Y8b d88P          
+               [RU]  by author: @abuztrade        Y8b d88P          
                                                    "Y88P"           
                                                                     
         . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   
@@ -28,213 +28,193 @@ banner: |
   "
 
 main:
+  name: "main"
   selectable: true
   horizontal: false
-  input: false
+  input: false # wait keys / true - wait input()
+  actions: 3
+
   text: |
-  "
-        ~ Выберите действие:
-        {status}
-      {select} 1. Добавить игру
-      {select} 2. Найти игру
-      {select} 3. Удалить игру
-      {select} 4. Редактировать игру
-      {select} 5. Все игры
-  "
+    "
+          {status}
+
+          ~ Выберите действие:
+
+         {select} 1. Добавить игру
+         {select} 2. Найти игру
+         {select} 3. Все игры
+    "
 
 add_game:
+  name: "add_game"
   selectable: false
   horizontal: false
   input: true
+  
   questions:
-    - "(?) Введите название игры: "
-    - "(?) Введите издателя игры: "
-    - "(?) Введите год выпуска игры: "
+    - text: "(?) Введите название игры: "
+      error: "*Ошибка при вводе названия игры, попробуйте ещё раз."
+      name: name
+      nullable: false
+      type: str
+
+
+    - text: "(?) Введите издателя игры: "
+      error: "*Ошибка при вводе издателя, попробуйте ещё раз."
+      name: author
+      nullable: false
+      type: str
+
+    - text: "(?) Введите год выпуска игры: "
+      error: "*Ошибка при вводе года выпуска, попробуйте ещё раз."
+      name: year
+      nullable: false
+      type: int
+
+  success: "* Игра была успешно добавлена"
 
   text: |
-  "
-        ~ Добавление игры 
+    "
+          ~ Добавление игры 
 
-          * Название игры: {name}
-          * Издатель: {author}
-          * Год выпуска: {year}
+            * Название игры: {name}
+            * Издатель: {author}
+            * Год выпуска: {year}
 
-          {error}
+            {error}
 
-       {question}
-  "
+        {question}"
 
 find_game:
+  name: "find_game"
+  selectable: false
+  horizontal: false
+  input: true
+
   questions:
-    name: 
-      text: "(?) Введите название игры: "
+    - text: "(?) Введите название игры: "
       error: "*Ошибка при вводе названия игры, попробуйте ещё раз."
+      name: name
+      nullable: true
+      type: str
 
-    author: 
-      text: "(?) Введите издателя игры: "
+
+    - text: "(?) Введите издателя игры: "
       error: "*Ошибка при вводе издателя, попробуйте ещё раз."
+      name: author
+      nullable: true
+      type: str
 
-    year: 
-      text: "(?) Введите год выпуска игры: "
+    - text: "(?) Введите год выпуска игры: "
       error: "*Ошибка при вводе года выпуска, попробуйте ещё раз."
+      name: year
+      nullable: true
+      type: int
+
+  error: "Нет игр с указанными фильтрами"
+  success: "Найдено {games} игр"
 
   text: |
-  "
-        ~ Поиск игры
+    "
+          ~ Поиск игры
 
-        $ Выставленные фильтры: 
-          * Название игры: {name}
-          * Издатель: {author}
-          * Год выпуска: {year}{error}
-          
-        @ Оставьте поле пустым чтобы не применять фильтр
+          $ Выставленные фильтры: 
+            * Название игры: {name}
+            * Издатель: {author}
+            * Год выпуска: {year}
+            
+          @ Оставьте поле пустым чтобы не применять фильтр
+          {error}
 
-        {error}
-
-       {question}
-  "
+        {question}"
 
 game_list:
+  name: "game_list"
+  selectable: true
+  horizontal: true
+  input: false
+  rows: 5
+  row_indent: 10
+
   headers: 
     - "№"
     - "Название"
     - "Издатель"
     - "Год"
 
-  single_row: "     {select} {table_rows}"
+  single_row: "    {select} {cols}"
 
   text: |
-  "
-        ~ Найденные игры ({page} / {max_page})
+    "
+          ~ Найденные игры ({games}) | Страница: ({page} / {max_page})
 
-           {table_header}
-  {rows}
+            {table_header}
+    {rows}
 
-        @ Листать: ← / → / A / D
-        @ Выбрать: enter
-        @ Выйти в меню: esc
-  "
+          @ Листать: ← / → / A / D
+          @ Выбрать: enter
+          @ Выйти в меню: esc
+    "
 
 game_page:
-  text: |
-  "
-        ~ Страница игры
+  name: "game_page"
+  selectable: true
+  horizontal: false
+  input: false
+  actions: 3
 
-          * Название игры: {name}
-          * Издатель: {author}
-          * Год выпуска: {year}
+  delete: "Игра была успешно удалена"
 
-      {select} 1. Изменить
-      {select} 2. Удалить
-      {select} 3. Отмена
-  "
+  text: | 
+    "
+          ~ Страница игры
 
-edit_game_page:
-  text: |
-  "
-        ~ Редактирование игры
+            * Название игры: {name}
+            * Издатель: {author}
+            * Год выпуска: {year}
+            
+        {select} 1. Изменить
+        {select} 2. Удалить
+        {select} 3. Назад
+    "
 
-          * Название игры: {name}
-          * Издатель: {author}
-          * Год выпуска: {year}
+edit_game:
+  name: "edit_game"
+  selectable: false
+  horizontal: false
+  input: true
 
-        @ Выберите параметр
-
-      {select} 1. Название
-      {select} 2. Издатель
-      {select} 3. Год выпуска
-  "
-
-edit_game_param:
   questions:
-    name: 
-      text: "(?) Введите новое название игры: "
+    - text: "(?) Введите новое название игры: "
       error: "*Ошибка при вводе названия игры, попробуйте ещё раз."
-      success: "Название игры изменено"
+      name: name
+      nullable: true
+      type: str
 
-    author: 
-      text: "(?) Введите нового издателя игры: "
+
+    - text: "(?) Введите нового издателя игры: "
       error: "*Ошибка при вводе издателя, попробуйте ещё раз."
-      success: "Издатель игры изменен"
+      name: author
+      nullable: true
+      type: str
 
-    year: 
-      text: "(?) Введите новый год выпуска игры: "
+    - text: "(?) Введите новый год выпуска игры: "
       error: "*Ошибка при вводе года выпуска, попробуйте ещё раз."
-      success: "Год выпуска игры изменен"
+      name: year
+      nullable: true
+      type: int
+
+  success: Игра была успешно изменена
 
   text: |
-  "
-        ~ Редактирование игры
+    "
+          ~ Редактирование игры
 
-          * Название игры: {name}
-          * Издатель: {author}
-          * Год выпуска: {year}
+            * Название игры: {name}
+            * Издатель: {author}
+            * Год выпуска: {year}
 
-        @ Оставьте поле пустым для отмены.
-
-       {question}
-  "
-
-
-context_menu: |
-  "{banner}
-  {control_term}
-  {header}
-  {context}
-  {footer}"
-
-select_action: 
-  text: "      ~ Выберите действие:"
-  buttons: 
-    - Добавить игру
-    - Найти игру
-    - Удалить игру
-    - Редактировать игру
-    - Все игры
-
-error: "\n      *Ошибка при вводе: {error}"
-
-
-# add game
-error_add: "\n\n      *Ошибка при вводе {error_name}, попробуйте ещё раз."
-
-errors_list:
-  name: "имени игры"
-  author: "издателя"
-  year: "года выпуска"
-
-add_action_context: |
-  "  
-          * Название игры: {name}
-          * Издатель: {author}
-          * Год выпуска: {year}{error}
-  "
-
-add_action_text:    "      ~ Добавление игры "
-input_name:    "     (?) Введите название игры: "
-input_author:  "     (?) Введите издателя игры: "
-input_year:    "     (?) Введите год выпуска игры: "
-add_action_success: "\n      *Игра {name} была успешно сохранена\n"
-# add game end
-
-# find game
-find_game_action_text: "      ~ Поиск игр\n        *"
-
-find_game_context: |
-  "  
-        $ Выставленные фильтры: 
-          * Название игры: {name}
-          * Издатель: {author}
-          * Год выпуска: {year}{error}
-          
-        @ Оставьте поле пустым чтобы не применять фильтр
-  "
-# find game end
-
-# game list table
-rows: 20
-all_game_table_text:  "      ~ Все игры\n        *"
-find_game_table_text: "      ~ Найденные игры\n        *"
-game_line:            "      {i}. Название: {name} | Издатель: {author} | Год: {year}"
-paging:               "      ~ Страница {page} из {pages}"
-
+          @ Оставьте поле пустым для сохранения старого значения.
+          {error}
+        {question}
+    "

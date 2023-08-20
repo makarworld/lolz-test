@@ -71,7 +71,9 @@ class Context:
 
     def show(self, endless = False) -> str:
         text = Context.format_string(self.text, **self.storage)
-
+        if text.strip().startswith('"') and\
+           text.strip().endswith('"'):
+            text = text.strip()[1:-1]
         print(text, end = '' if endless else '\n')
 
         return text

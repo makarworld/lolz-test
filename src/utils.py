@@ -1,4 +1,6 @@
 import os
+from typing import Callable, List
+from dataclasses import dataclass
 import yaml
 
 from src.exceptions import *
@@ -7,7 +9,10 @@ from src.exceptions import *
 # response.data[0].name.text
 class Struct(dict):
     __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+
+    def __gelattr__(self, key):
+        super().__delitem__(key)
+        object.__delattr__(self, key)
 
     def __getattr__(cls, key):
         item = cls.get(key)
@@ -18,6 +23,22 @@ class Struct(dict):
                 if isinstance(item[i], dict):
                     item[i] = Struct(**item[i])
         return item
+
+@dataclass
+class Navigator:
+    callback: Callable
+    page: str
+    buttons: List[int]
+
+@dataclass
+class InputHandler:
+    callback: Callable
+    on_page: str
+
+@dataclass
+class ViewPreparation:
+    callback: Callable
+    key: str
 
 class LocalMemory(Struct): 
     pass
@@ -95,7 +116,7 @@ class Key:
     RU_UP = 'ц'
     RU_DOWN = 'ы'
     RU_LEFT = 'ф'
-    RU_RIGHT = 'ы'
+    RU_RIGHT = 'в'
 
     ENTER = '\r'
     ESC = ''
@@ -162,3 +183,18 @@ def create_buttons(buttons: list, indent: int = 4, selected: int = 1, select_tex
     for i, b in enumerate(buttons):
         text += f"{select_text.rjust(indent) if i + 1 == selected else indent * ' '}{i + 1}. {b}\n"
     return text[:-1]
+
+def nth_repl(s, sub, repl, n):
+    """https://stackoverflow.com/questions/35091557/replace-nth-occurrence-of-substring-in-string"""
+    find = s.find(sub)
+    # If find is not -1 we have found at least one match for the substring
+    i = find != -1
+    # loop util we find the nth or we find no match
+    while find != -1 and i != n:
+        # find + 1 means we start searching from after the last match
+        find = s.find(sub, find + 1)
+        i += 1
+    # If i is equal to n we found nth match so replace
+    if i == n:
+        return s[:find] + repl + s[find+len(sub):]
+    return s

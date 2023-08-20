@@ -19,3 +19,9 @@ class ReadYamlError(GameException):
 
 class UnknownError(GameException):
     pass
+
+class PageNotExist(GameException): 
+    pass
+
+class InputValidatorNotExist(GameException): 
+    pass
