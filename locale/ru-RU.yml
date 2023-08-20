@@ -1,3 +1,4 @@
+lang_name: Русский
 banner: |
   "
                .d8888b.                                             
@@ -71,7 +72,7 @@ add_game:
       nullable: false
       type: int
 
-  success: "* Игра была успешно добавлена"
+  success: Игра была успешно добавлена
 
   text: |
     "
@@ -111,8 +112,8 @@ find_game:
       nullable: true
       type: int
 
-  error: "Нет игр с указанными фильтрами"
-  success: "Найдено {games} игр"
+  error: Нет игр с указанными фильтрами
+  success: Найдено {games} игр
 
   text: |
     "
@@ -137,10 +138,10 @@ game_list:
   row_indent: 10
 
   headers: 
-    - "№"
-    - "Название"
-    - "Издатель"
-    - "Год"
+    - №
+    - Название
+    - Издатель
+    - Год
 
   single_row: "    {select} {cols}"
 
@@ -163,7 +164,7 @@ game_page:
   input: false
   actions: 3
 
-  delete: "Игра была успешно удалена"
+  delete: Игра была успешно удалена
 
   text: | 
     "
@@ -216,5 +217,4 @@ edit_game:
 
           @ Оставьте поле пустым для сохранения старого значения.
           {error}
-        {question}
-    "
+        {question}"

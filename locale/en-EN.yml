@@ -1,0 +1,220 @@
+lang_name: English
+banner: |
+  "
+               .d8888b.                                             
+              d88P  Y88b                                            
+              888    888                                            
+              888         8888b.  88888b.d88b.   .d88b.             
+              888  88888     "88b 888 "888 "88b d8P  Y8b            
+              888    888 .d888888 888  888  888 88888888            
+              Y88b  d88P 888  888 888  888  888 Y8b.                
+               "Y8888P88 "Y888888 888  888  888  "Y8888             
+                                                                    
+         .d8888b.  888                                              
+        d88P  Y88b 888                                              
+        Y88b.      888                                              
+         "Y888b.   888888 .d88b.  888d888 8888b.   .d88b.   .d88b.  
+            "Y88b. 888   d88""88b 888P"      "88b d88P"88b d8P  Y8b 
+              "888 888   888  888 888    .d888888 888  888 88888888 
+        Y88b  d88P Y88b. Y88..88P 888    888  888 Y88b 888 Y8b.     
+         "Y8888P"   "Y888 "Y88P"  888    "Y888888  "Y88888  "Y8888  
+                                                       888          
+               [EN]  by author: @abuztrade        Y8b d88P          
+                                                   "Y88P"           
+                                                                    
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   
+        .       To select a button, press W / S / ↓ / ↑         .   
+        . To cancel the entry and return to the menu enter "-"  .   
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   
+  "
+
+main:
+  name: "main"
+  selectable: true
+  horizontal: false
+  input: false # wait keys / true - wait input()
+  actions: 3
+
+  text: |
+    "
+          {status}
+
+          ~ Select an action:
+
+         {select} 1. Add a game
+         {select} 2. Find the game
+         {select} 3. All games
+    "
+
+add_game:
+  name: "add_game"
+  selectable: false
+  horizontal: false
+  input: true
+  
+  questions:
+    - text: "(?) Enter the name of the game: "
+      error: "*Error entering game name, try again."
+      name: name
+      nullable: false
+      type: str
+
+
+    - text: "(?) Enter the publisher of the game: "
+      error: "*Error entering publisher, try again."
+      name: author
+      nullable: false
+      type: str
+
+    - text: "(?) Enter the year of the game's release: "
+      error: "*Error entering the year of manufacture, try again."
+      name: year
+      nullable: false
+      type: int
+
+  success: "* The game was successfully added"
+
+  text: |
+    "
+          ~ Adding a game
+
+            * Game title: {name}
+            * Publisher: {author}
+            * Year of release: {year}
+
+            {error}
+
+        {question}"
+
+find_game:
+  name: "find_game"
+  selectable: false
+  horizontal: false
+  input: true
+
+  questions:
+    - text: "(?) Enter game name: "
+      error: "*Error when entering game name, try again."
+      name: name
+      nullable: true
+      type: str
+
+
+    - text: "(?) Enter the publisher of the game: "
+      error: "*Error entering publisher, try again."
+      name: author
+      nullable: true
+      type: str
+
+    - text: "(?) Enter the year of the game's release: "
+      error: "*Error when entering the year of release, try again."
+      name: year
+      nullable: true
+      type: int
+
+  error: "No games with the specified filters"
+  success: "Found {games} games"
+
+  text: |
+    "
+          ~ Game Search
+
+          $ Filters set: 
+            * Game title: {name}
+            * Publisher: {author}
+            * Year of release: {year}
+            
+          @ Leave the field blank to not apply a filter
+          {error}
+
+        {question}"
+
+game_list:
+  name: "game_list"
+  selectable: true
+  horizontal: true
+  input: false
+  rows: 5
+  row_indent: 10
+
+  headers: 
+    - "№"
+    - "Title"
+    - "Publisher"
+    - "Year"
+
+  single_row: "    {select} {cols}"
+
+  text: |
+    "
+          ~ Found games ({games}) | Page: ({page} / {max_page})
+
+            {table_header}
+    {rows}
+
+          @ Swipe: ← / → / A / D
+          @ Select: enter
+          @ Exit to menu: esc
+    "
+
+game_page:
+  name: "game_page"
+  selectable: true
+  horizontal: false
+  input: false
+  actions: 3
+
+  delete: "The game has been successfully deleted"
+
+  text: | 
+    "
+          ~ Game page
+
+            * Game title: {name}
+            * Publisher: {author}
+            * Year of release: {year}
+            
+        {select} 1. Change
+        {select} 2. Delete
+        {select} 3. Back
+    "
+
+edit_game:
+  name: "edit_game"
+  selectable: false
+  horizontal: false
+  input: true
+
+  questions:
+    - text: "(?) Enter a new game name: "
+      error: "*Error when entering the game name, try again."
+      name: name
+      nullable: true
+      type: str
+
+
+    - text: "(?) Enter the new publisher of the game: "
+      error: "*Error entering publisher, try again."
+      name: author
+      nullable: true
+      type: str
+
+    - text: "(?) Enter the new year of the game's release: "
+      error: "*Error when entering the year of release, try again."
+      name: year
+      nullable: true
+      type: int
+
+  success: The game was successfully changed
+
+  text: |
+    "
+          ~ Edit game
+
+            * Game title: {name}
+            * Publisher: {author}
+            * Year of release: {year}
+
+          @ Leave the field blank to keep the old value.
+          {error}
+        {question}"

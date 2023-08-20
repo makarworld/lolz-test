@@ -1,9 +1,11 @@
-import os
 from typing import Callable, List
 from dataclasses import dataclass
 import yaml
+import os
 
 from src.exceptions import *
+
+
 # class for use dict as javascript
 # example:
 # response.data[0].name.text
@@ -42,46 +44,6 @@ class ViewPreparation:
 
 class LocalMemory(Struct): 
     pass
-
-class Storage(Struct):
-    pass
-
-class State(Struct):
-    pass
-
-def error_handler(except_type: Exception):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except Exception as e:
-                raise except_type(e)
-        return wrapper
-    return decorator
-
-def gui_handler(context, text: str, storage: Storage, memory: LocalMemory, temp_memory: LocalMemory):
-    # TODO: Доделать чтобы это был декоратор типо
-    # @gui_page(text = locale.text, banner = locale.banner, footer = locale.footer)
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-
-            context.set(text)
-            context.set_storage(**storage)
-            context.memory.update(**memory)
-            context.temp_memory.clear()
-            context.temp_memory.update(**temp_memory)
-
-            return func(context = context, *args, **kwargs)
-
-        return wrapper
-    return decorator
-
-class GameAction:
-    MENU = 0
-    ADD_GAME = 1
-    FIND_GAME = 2
-    EDIT_GAME = 3
-    DELETE_GAME = 4
 
 def wait_key():
     ''' Wait for a key press on the console and return it. '''
@@ -173,16 +135,9 @@ class KeyMap:
 def set_console_size(width: int, height: int):
     os.system(f'cmd /c mode con: cols={width} lines={height}')
 
-@error_handler(ReadYamlError)
 def load_yaml(path):
     with open(path, 'r', encoding = 'utf-8') as f:
         return Struct(**yaml.safe_load(f))
-
-def create_buttons(buttons: list, indent: int = 4, selected: int = 1, select_text = '[>] ') -> str:
-    text = ""
-    for i, b in enumerate(buttons):
-        text += f"{select_text.rjust(indent) if i + 1 == selected else indent * ' '}{i + 1}. {b}\n"
-    return text[:-1]
 
 def nth_repl(s, sub, repl, n):
     """https://stackoverflow.com/questions/35091557/replace-nth-occurrence-of-substring-in-string"""
