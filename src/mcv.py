@@ -43,7 +43,7 @@ class GameModel:
     def set_page(self, page: int):
         last = self.current_page
         self.current_page = max(1, min(self.max_page, page))
-        if self.current_page != last:
+        if last != self.current_page:
             self.current_button = 1
 
     def clear_temp(self):
@@ -118,11 +118,7 @@ class GameController:
         """
         arrow = (self.last_key + key).encode()
         self.last_key = key
-
-        with open('key.txt', 'w', encoding='utf-8') as f:
-            f.write(arrow.decode() + '\n')
-            f.write(key)
-
+        
         if self.cxt.action.selectable:
             if KeyMap.whatkey(key, arrow) == ControlKey.UP:
                 self.model.set_button(self.model.current_button - 1)

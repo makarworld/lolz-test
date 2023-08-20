@@ -6,16 +6,16 @@ from src.utils import set_console_size
 from src.exceptions import *
 from src.mcv import ContextStorage, GameModel, GameController, GameView
 
+# set standart console size
 set_console_size(70, 41)
 
-"""
-TODO: 
-зарефакторить код, оптимизировать.
-"""
-
+# load locale for select language
 locale = Localization('all')
 
+# load context
 cxt = ContextStorage(locale)
+
+# load MVC (Model, View, Controller)
 game_model = GameModel(cxt)
 game_controller = GameController(cxt, game_model)
 game_view = GameView(cxt, game_model, game_controller)
@@ -30,7 +30,8 @@ game_view = GameView(cxt, game_model, game_controller)
 #                                       #
 #                                       #
 # # # # # # # # # # # # # # # # # # # # # 
-
+# All navigators between system states  #
+# # # # # # # # # # # # # # # # # # # # # 
 
 @game_controller.navigator(page_from = 'select_language', buttons = [])
 def add_game(ctrl: GameController):
@@ -48,8 +49,13 @@ def find_game(ctrl: GameController):
 
 @game_controller.navigator(page_from = 'main', buttons = [3])
 def game_list(ctrl: GameController):
-    ctrl.set_action(ctrl.cxt.locale.game_list)
-    ctrl.cxt.context.memory.games = list(Game.select())
+    games = list(Game.select())
+    if games:
+        ctrl.cxt.context.memory.games = list(Game.select())
+        ctrl.set_action(ctrl.cxt.locale.game_list)
+    else:
+        ctrl.cxt.context.storage.status = ctrl.cxt.action.no_games
+
 
 @game_controller.navigator(page_from = 'game_list', buttons = []) # any button
 def game_list_buttons(ctrl: GameController):
@@ -87,7 +93,8 @@ def game_page_menu(ctrl: GameController):
 #                                       #
 #                                       #
 # # # # # # # # # # # # # # # # # # # # # 
-
+#      validators for input data        #
+# # # # # # # # # # # # # # # # # # # # # 
 
 
 
@@ -146,7 +153,8 @@ def edit_game_validator(ctrl: GameController):
 #                                       #
 #                                       #
 # # # # # # # # # # # # # # # # # # # # # 
-
+#        prepare text for view          #
+# # # # # # # # # # # # # # # # # # # # # 
 
         
 @game_view.view_preparation('selectable')
@@ -234,7 +242,8 @@ def input_view_preparation(view: GameView):
 #                                       #
 #                                       #
 # # # # # # # # # # # # # # # # # # # # # 
-
+#           start main loop             #
+# # # # # # # # # # # # # # # # # # # # # 
 
 
 

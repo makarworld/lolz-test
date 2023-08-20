@@ -35,6 +35,8 @@ main:
   input: false # wait keys / true - wait input()
   actions: 3
 
+  no_games: Игр не найдено
+
   text: |
     "
           {status}
