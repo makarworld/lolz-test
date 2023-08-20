@@ -4,7 +4,7 @@ from src.models import Game
 from src.context import Localization
 from src.utils import set_console_size
 from src.exceptions import *
-from src.mcv import ContextStorage, GameModel, GameController, GameView
+from src.mvc import ContextStorage, GameModel, GameController, GameView
 
 # set standart console size
 set_console_size(70, 41)

@@ -38,15 +38,18 @@ class GameModel:
         self.max_page = None
 
     def set_button(self, button: int):
+        """Установить текущую кнопку"""
         self.current_button = max(1, min(self.max_button, button))
 
     def set_page(self, page: int):
+        """Установить текущую страницу"""
         last = self.current_page
         self.current_page = max(1, min(self.max_page, page))
         if last != self.current_page:
             self.current_button = 1
 
     def clear_temp(self):
+        """Очистить атрибуты name, author, year из памяти"""
         try: self.cxt.context.memory.pop('name') 
         except: pass
         try: self.cxt.context.memory.pop('author') 
@@ -64,7 +67,12 @@ class GameController:
         self.inputs_validators: List[InputHandler] = []
 
     # INPUT HANDLERS
-    def register_inputs_validator(self, callback: Callable, on_page: str): 
+    def register_inputs_validator(self, callback: Callable, on_page: str):
+        """
+        Зарегистрировать inputs_validator с заданной страницы
+        Метод будет вызван когда все инпуты будут заполнены
+        Инпуты сохраняются в памяти контекста
+        """ 
         self.inputs_validators.append(
             InputHandler(
                 callback = callback,
@@ -73,6 +81,7 @@ class GameController:
         )
 
     def call_inputs_validator(self): 
+        """Найти и вызвать инпут-валидатор, если не задан вызвать ошибку"""
         for handler in self.inputs_validators:
             if (handler.on_page == self.cxt.action.name):
                 return handler.callback(self)
@@ -81,6 +90,7 @@ class GameController:
     
     
     def input_validator(self, on_page: str): 
+        """Декоратор для создания валидатора как функции"""
         def decorator(callback):
             self.register_inputs_validator(callback, on_page)
 
@@ -89,6 +99,10 @@ class GameController:
 
     # NAVIGATORS
     def register_navigator(self, callback, page: str, buttons: List[int]):
+        """
+        Зарегистрировать навигатор после нажатия заданной кнопки на заданной странице
+        Метод должен перенаправить на следующую страницу
+        """ 
         self.navigators.append(
             Navigator(
                 callback = callback,
@@ -98,6 +112,7 @@ class GameController:
         )
     
     def call_navigator(self) -> None:
+        """Найти и вызвать навигатор, если не задан вызвать ошибку"""
         for nav in self.navigators:
             if (nav.page == self.cxt.action.name) and\
                ((self.model.current_button in nav.buttons) or (not nav.buttons)):
@@ -106,6 +121,7 @@ class GameController:
         raise PageNotExist(f"Page {self.cxt.action.name} with button {self.model.current_button} not found")
     
     def navigator(self, page_from: str, buttons: List[int]):
+        """Декоратор для создания навигатора как функции"""
         def decorator(callback):
             self.register_navigator(callback, page_from, buttons)
 
@@ -114,11 +130,11 @@ class GameController:
 
     def press_key(self, key: str):
         """
-        Press key event
+        Ивент нажатия на клавишу, вызвает действие если оно нужно
         """
         arrow = (self.last_key + key).encode()
         self.last_key = key
-        
+
         if self.cxt.action.selectable:
             if KeyMap.whatkey(key, arrow) == ControlKey.UP:
                 self.model.set_button(self.model.current_button - 1)
@@ -149,7 +165,7 @@ class GameController:
         # Если нажал на ENTER то выполнить действие
 
     def input_value(self, value: Any, question: LocalMemory):
-
+        """Ивент ввода значения, валидация и выход в меню если требуется"""
         if isinstance(value, tuple):
             if (value[0] != '' and question.nullable is False) and value[0] != '-':
                 self.cxt.context.memory.error = question.error
@@ -183,6 +199,10 @@ class GameController:
         # Если была ошибка то записать её и вернуть ошибку
 
     def request(self):
+        """
+        Запрос к контроллеру на выполнение нужного действия на странице
+        Ожидания ввода или нажатия клавиши
+        """
         if self.cxt.action.input:
             question = self.cxt.action.questions[self.cxt.context.memory.step]
             match question.type:
@@ -200,7 +220,8 @@ class GameController:
             self.press_key(key)
 
     def set_action(self, locale: dict):
-        # Сменить состояние
+        # Сменить состояние всей системы
+        # поменять текущую страницу
         self.model.clear_temp()
         self.model.current_button = 1
         self.model.current_page = 1
@@ -225,6 +246,7 @@ class GameView:
         self.preparation_handlers: List[ViewPreparation] = []
 
     def register_preparation(self, callback: Callable, key: str): 
+        """Зарегистрировать предварительный обработчик данных из конфига страницы"""
         self.preparation_handlers.append(
             ViewPreparation(
                 callback = callback,
@@ -232,11 +254,13 @@ class GameView:
             )
         )
     def call_preparation(self, key: str): 
+        """Вызвать предварительный обработчик данных если он существует для данного ключа"""
         for preparation in self.preparation_handlers:
             if (preparation.key == key):
                 return preparation.callback(self)
     
     def view_preparation(self, key: str): 
+        """Декоратор для создания предварительного обработчика как функции"""
         def decorator(callback):
             self.register_preparation(callback, key)
 
@@ -245,33 +269,42 @@ class GameView:
 
 
     def show(self):
+        """Главная функция отрисовки страницы"""
         for key, value in self.cxt.action.items():
             if value:
+                # вызов предварительного обработчика если есть значение
                 self.call_preparation(key)
 
         if self.cxt.action.selectable: 
+            # отобразить текущую выбранную кнопку если страница поддерживает кнопки
             # replace selected button
             self.cxt.context.text = nth_repl(self.cxt.context.text, '{select}', '[>]', self.model.current_button)
             # replace other buttons
             self.cxt.context.text = self.cxt.context.text.replace('{select}', '   ',)
         
         if '{status}' in self.cxt.context.text:
+            # Замена статуса, если не указан то поставить пустой, если указан то поставить '* ' перед ним
             if not self.cxt.context.storage.get('status'):
                 # set status after first start for avoid error
                 self.cxt.context.storage['status'] = ''
             elif not self.cxt.context.storage['status'].startswith('* '):
                 self.cxt.context.storage['status'] = '* ' + self.cxt.context.storage['status']
         
+        # взять баннер для текущей локализации и удалить с него "
         banner = self.cxt.locale.banner
         if banner.strip().startswith('"') and\
            banner.strip().endswith('"'):
             banner = banner.strip()[1:-1]
 
+        # посчитать количество строк для отображения, подогнать под них размер консоли
         rows = (banner + self.cxt.context.text).split('\n')
-        if self.cxt.context.memory.last_size != len(rows):
-            self.cxt.context.memory.last_size = len(rows)
-            set_console_size(70, len(rows))
+        # если на странице есть инпут, то добавить 1 строку
+        len_rows = len(rows) + (1 if self.cxt.action.input else 0)
+        if self.cxt.context.memory.last_size != len_rows:
+            self.cxt.context.memory.last_size = len_rows
+            set_console_size(70, len_rows)
 
+        # отобразить баннер и страницу
         print(banner)
         self.cxt.context.show(endless = self.cxt.action.input) # if input is true = endless mode
 
@@ -279,9 +312,11 @@ class GameView:
         self.cxt.context.text = self.cxt.action.text 
     
     def clear(self):
+        # очистить консоль
         self.cxt.context.clear_console()
 
     def run_loop(self, first_page: Localization):
+        # запустить главный луп программы
         self.controller.set_action(first_page)
 
         while True:

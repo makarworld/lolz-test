@@ -1,40 +1,49 @@
 import os
-
+from typing import Union
 
 from src.utils import Struct, LocalMemory, load_yaml
 
 class Localization(Struct):
+    """Class for control text language"""
     path = './locale'
 
-    def __init__(self, language: str):
+    def __init__(self, language: str) -> None:
         self.language = language.upper()
 
+        # загрузка нужного языкового пакета 
         data = load_yaml(f'{self.path}/{self.language.lower()}-{self.language.upper()}.yml')
         
+        # подгрузка всего пакета в self.__dict__
         super().__init__(**data)
 
-    def __getattr__(cls, key):
+    def __getattr__(cls, key: str) -> Union[str, Struct]:
+        # получение переменной из self.__dict__
         res = super().__getattr__(key)
 
+        # если это текст, он начинается и заканчивается с " то убрать это. 
         if isinstance(res, str) and\
            res.strip().startswith('"') and\
            res.strip().endswith('"'):
             res = res.strip()[1:-1]
 
+        # вернуть полученное значение
         return res
 
 
     @staticmethod
     def get_languages() -> list:
+        """Получить список всех локализаций из ./locale"""
         files = os.listdir(Localization.path)
 
         langs = []
 
         for file in files:
+            # пропустить all-ALL.yml (там только страница выбора языка)
             if 'all-ALL' in file: continue
 
             if (file.endswith('.yml') or file.endswith('.yaml')):
                 lang = file.split('.')[0].split('-')[0]
+                # подгрузить объект локализации
                 langs.append(Localization(lang))
 
         return langs
